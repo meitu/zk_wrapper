@@ -1,0 +1,27 @@
+sudo: required
+language: go
+dist: trusty
+
+go:
+  - 1.6
+  - 1.7.3
+  - 1.8
+
+services:
+  - docker
+
+env:
+  - DOCKER_COMPOSE_VERSION=1.14.0
+
+install:
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+  - go get -u github.com/golang/lint/golint
+  - go get github.com/samuel/go-zookeeper/zk
+  - make build
+
+script:
+    - make test
+    - make lint
