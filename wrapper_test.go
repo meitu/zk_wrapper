@@ -72,7 +72,7 @@ func TestCreate(t *testing.T) {
 	conn.Chroot("")
 	exists, _, err := conn.Exists(root + path)
 	if !exists || err != nil {
-		t.Errorf("exists was expected, but got not exists", path, zkPath)
+		t.Errorf("exists was expected, but got not exists")
 	}
 }
 
@@ -83,22 +83,22 @@ func TestGetAndSet(t *testing.T) {
 	conn.Create(path, nil, 0, zk.WorldACL(zk.PermAll))
 	_, err := conn.Set(path, data, -1)
 	if err != nil {
-		t.Errorf("con.Set succ was expected, but got err %s", err)
+		t.Errorf("success to Set was expected, but got err %s", err)
 	}
 	v, _, err := conn.Get(path)
 	if err != nil {
-		t.Errorf("con.Get succ was expected, but got err %s", err)
+		t.Errorf("success to Get was expected, but got err %s", err)
 	}
 	if v == nil {
-		t.Error("%v was expected, but got nil", data)
+		t.Errorf("data %v was expected, but got nil", data)
 	}
 	conn.Chroot("")
 	v1, _, err := conn.Get(root + path)
 	if err != nil {
-		t.Errorf("con.Get succ was expected, but got err %s", err)
+		t.Errorf("success to Get was expected, but got err %s", err)
 	}
 	if v1 == nil {
-		t.Error("%v was expected, but got nil", data)
+		t.Errorf("%v was expected, but got nil", data)
 	}
 }
 
@@ -108,7 +108,7 @@ func TestDelete(t *testing.T) {
 	conn.Chroot(root)
 	err := conn.Delete(path, -1)
 	if err != nil {
-		t.Errorf("nil was expected, but got err %s", err)
+		t.Errorf("ret nil was expected, but got err %s", err)
 	}
 }
 
