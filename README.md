@@ -1,4 +1,4 @@
-# zk_wrapper [![Build Status](https://api.travis-ci.org/meitu/zk_wrapper.svg?branch=master)
+# zk_wrapper ![Build Status](https://api.travis-ci.org/meitu/zk_wrapper.svg?branch=master)
 
 * Wrapper `chroot` for the go-zookeeper 
 
