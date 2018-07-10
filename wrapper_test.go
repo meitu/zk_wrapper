@@ -127,3 +127,30 @@ func TestChildren(t *testing.T) {
 		t.Errorf("children num %d was expected, but got %d", len(subPaths), len(children))
 	}
 }
+
+func TestRecursiveOperation(t *testing.T) {
+	mkdirCases := []string{
+		"/recursive-1/a/b/c",
+		"/recursivie-2",
+		"/a",
+	}
+	for _, c := range mkdirCases {
+		if err := conn.MkdirRecursive(c, nil); err != nil {
+			t.Errorf("mkdir error = nil was expected, but got %v", err)
+		}
+	}
+	data := "bar"
+	conn.MkdirRecursive("/a", []byte(data))
+	got, _, err := conn.Get("/a")
+	if err != nil {
+		t.Errorf("got error when get data, err: %v", err)
+	}
+	if string(got) != data {
+		t.Errorf("data %v was expected, but got %v", data, got)
+	}
+	for _, c := range mkdirCases {
+		if err := conn.DeleteRecursive(c, -1); err != nil {
+			t.Errorf("delete error = nil was expected, but got %v", err)
+		}
+	}
+}

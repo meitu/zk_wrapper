@@ -1,7 +1,9 @@
 package zk_wrapper
 
 import (
+	"errors"
 	"fmt"
+	"path"
 	"strings"
 	"time"
 
@@ -137,4 +139,60 @@ func (c *Conn) Multi(ops ...interface{}) ([]zk.MultiResponse, error) {
 		res[i].String = c.trimPrefix(op.String)
 	}
 	return res, err
+}
+
+func (c *Conn) mkEmptyDirRecursive(zkPath string) error {
+	if zkPath == "/" {
+		return nil
+	}
+	parent := path.Dir(zkPath)
+	if parent != "/" {
+		if err := c.mkEmptyDirRecursive(parent); err != nil {
+			return err
+		}
+	}
+	_, err := c.Create(zkPath, nil, 0, zk.WorldACL(zk.PermAll))
+	if err == zk.ErrNodeExists {
+		return nil
+	}
+	return err
+}
+
+func (c *Conn) MkdirRecursive(zkPath string, data []byte) error {
+	if zkPath == "/" {
+		return errors.New("root path can't deleted")
+	}
+	// create the parent dir first if not exists
+	if err := c.mkEmptyDirRecursive(path.Dir(zkPath)); err != nil {
+		return err
+	}
+	_, err := c.Create(zkPath, data, 0, zk.WorldACL(zk.PermAll))
+	if err == zk.ErrNodeExists { // overwrite the data if exists
+		_, err = c.Set(zkPath, data, -1)
+	}
+	return err
+}
+
+func (c *Conn) DeleteRecursive(zkPath string, version int32) error {
+	// return err if nil or not the not node empty error
+	if err := c.Delete(zkPath, version); err == nil || err != zk.ErrNotEmpty {
+		return err
+	}
+	// remove the create/write perm when we are deleting the path
+	perm := int32(zk.PermAdmin | zk.PermDelete | zk.PermRead)
+	if _, err := c.SetACL(zkPath, zk.WorldACL(perm), version); err != nil {
+		return err
+	}
+	childs, _, err := c.Children(zkPath)
+	if err != nil {
+		return err
+	}
+	for _, child := range childs {
+		// Don't use path.Join while conflict with param name
+		err = c.DeleteRecursive(path.Join(zkPath, child), -1)
+		if err != nil && err != zk.ErrNoNode {
+			return err
+		}
+	}
+	return c.Delete(zkPath, version)
 }
