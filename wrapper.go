@@ -158,7 +158,7 @@ func (c *Conn) mkEmptyDirRecursive(zkPath string) error {
 	return err
 }
 
-func (c *Conn) MkdirRecursive(zkPath string, flags int32, data []byte) error {
+func (c *Conn) MkNodeRecursive(zkPath string, flags int32, data []byte) error {
 	if zkPath == "/" {
 		return errors.New("root path can't deleted")
 	}

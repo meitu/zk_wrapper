@@ -135,12 +135,12 @@ func TestRecursiveOperation(t *testing.T) {
 		"/a",
 	}
 	for _, c := range mkdirCases {
-		if err := conn.MkdirRecursive(c, 0, nil); err != nil {
+		if err := conn.MkNodeRecursive(c, 0, nil); err != nil {
 			t.Errorf("mkdir error = nil was expected, but got %v", err)
 		}
 	}
 	data := "bar"
-	conn.MkdirRecursive("/a", 0, []byte(data))
+	conn.MkNodeRecursive("/a", 0, []byte(data))
 	got, _, err := conn.Get("/a")
 	if err != nil {
 		t.Errorf("got error when get data, err: %v", err)
