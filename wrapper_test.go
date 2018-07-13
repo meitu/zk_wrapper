@@ -38,7 +38,7 @@ func TestAppendPrefix(t *testing.T) {
 	}
 	for _, c := range cases {
 		expected := root + c
-		got := mockConn.appendPrefix(c)
+		got := mockConn.AppendChroot(c)
 		if got != expected {
 			t.Errorf("%s was expected, but got %s", expected, got)
 		}
@@ -54,9 +54,9 @@ func TestTrimPrefix(t *testing.T) {
 		chroot: root,
 	}
 	for _, c := range cases {
-		input := mockConn.appendPrefix(c)
-		got := mockConn.trimPrefix(input)
-		if c != mockConn.trimPrefix(input) {
+		input := mockConn.AppendChroot(c)
+		got := mockConn.TrimChroot(input)
+		if c != mockConn.TrimChroot(input) {
 			t.Errorf("%s was expected, but got %s", c, got)
 		}
 	}
