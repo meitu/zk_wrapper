@@ -159,6 +159,13 @@ func (c *Conn) mkEmptyDirRecursive(zkPath string) error {
 }
 
 func (c *Conn) MkNodeRecursive(zkPath string, flags int32, data []byte) error {
+	_, err := c.Set(zkPath, data, -1)
+	if err == nil {
+		return nil
+	}
+	if err != zk.ErrNoNode {
+		return err
+	}
 	if zkPath == "/" {
 		return errors.New("root path can't deleted")
 	}
@@ -166,7 +173,7 @@ func (c *Conn) MkNodeRecursive(zkPath string, flags int32, data []byte) error {
 	if err := c.mkEmptyDirRecursive(path.Dir(zkPath)); err != nil {
 		return err
 	}
-	_, err := c.Create(zkPath, data, flags, zk.WorldACL(zk.PermAll))
+	_, err = c.Create(zkPath, data, flags, zk.WorldACL(zk.PermAll))
 	if err == zk.ErrNodeExists { // overwrite the data if exists
 		_, err = c.Set(zkPath, data, -1)
 	}
