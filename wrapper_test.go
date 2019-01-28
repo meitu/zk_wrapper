@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/samuel/go-zookeeper/zk"
+	"github.com/meitu/go-zookeeper/zk"
 )
 
 var (

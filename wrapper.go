@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/samuel/go-zookeeper/zk"
+	"github.com/meitu/go-zookeeper/zk"
 )
 
 type Conn struct {
@@ -65,20 +65,20 @@ func (c *Conn) Children(path string) ([]string, *zk.Stat, error) {
 	return res, stat, err
 }
 
-func (c *Conn) ChildrenW(path string) ([]string, *zk.Stat, <-chan zk.Event, error) {
-	children, stat, ev, err := c.Conn.ChildrenW(c.AppendChroot(path))
+func (c *Conn) ChildrenW(path string) ([]string, *zk.Stat, *zk.Watcher, error) {
+	children, stat, w, err := c.Conn.ChildrenW(c.AppendChroot(path))
 	res := make([]string, len(children))
 	for i, child := range children {
 		res[i] = c.TrimChroot(child)
 	}
-	return res, stat, ev, err
+	return res, stat, w, err
 }
 
 func (c *Conn) Get(path string) ([]byte, *zk.Stat, error) {
 	return c.Conn.Get(c.AppendChroot(path))
 }
 
-func (c *Conn) GetW(path string) ([]byte, *zk.Stat, <-chan zk.Event, error) {
+func (c *Conn) GetW(path string) ([]byte, *zk.Stat, *zk.Watcher, error) {
 	return c.Conn.GetW(c.AppendChroot(path))
 }
 
@@ -104,7 +104,7 @@ func (c *Conn) Exists(path string) (bool, *zk.Stat, error) {
 	return c.Conn.Exists(c.AppendChroot(path))
 }
 
-func (c *Conn) ExistsW(path string) (bool, *zk.Stat, <-chan zk.Event, error) {
+func (c *Conn) ExistsW(path string) (bool, *zk.Stat, *zk.Watcher, error) {
 	return c.Conn.ExistsW(c.AppendChroot(path))
 }
 
@@ -202,4 +202,8 @@ func (c *Conn) DeleteRecursive(zkPath string, version int32) error {
 		}
 	}
 	return c.Delete(zkPath, version)
+}
+
+func (c *Conn) RemoveWatcher(w *zk.Watcher) bool {
+	return c.Conn.RemoveWatcher(w)
 }
